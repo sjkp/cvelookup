@@ -1,0 +1,3 @@
+[build]
+  publish = "dist"  
+  command = "cd cvelookup && npm ci && npm run build"
