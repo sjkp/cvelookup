@@ -1,0 +1,50 @@
+---
+
+export type Packages = PackageInfo[]
+
+export interface PackageInfo {
+  package: Package
+  ranges: Range[]
+}
+
+export interface Package {
+  ecosystem: string
+  name: string
+}
+
+export interface Range {
+  type: string
+  events: Event[]
+}
+
+export interface Event {
+  introduced?: string
+  fixed?: string
+}
+
+
+interface Props {
+	packages: Packages | undefined;	
+}
+
+const { packages } = Astro.props;
+---
+<div class="grid grid-cols-2">
+    <!-- {JSON.stringify(packages)} -->
+    {packages && packages.map(p => 
+        {
+            return <div class="col-span-2">{p.package.name} ({p.package.ecosystem})</div>
+            <div><h6 class="text-xs">Introduced in version:</h6></div>
+            <div><h6 class="text-xs">Fixed in version:</h6></div>
+        <>{p.ranges?.map(r => {
+            return r.events?.map((e,i) => {
+                return <div>{e.introduced || e.fixed}</div>
+                })
+            })
+        }    </>    
+        <hr class="col-span-2 mt-2 pb-2" />
+    }
+    )
+    }
+
+</div>

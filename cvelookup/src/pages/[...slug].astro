@@ -1,0 +1,108 @@
+---
+import Card from "../components/Card.astro";
+import DateTime from "../components/DateTime.astro";
+import PackageInfo from "../components/PackageInfo.astro";
+import Severity from "../components/Severity.astro";
+import SeverityBox from "../components/SeverityBox.astro";
+import getCVE, { getAllSlugs } from "../getDataHelper";
+import Layout from "../layouts/Layout.astro";
+
+const { slug } = Astro.params;
+const data = getCVE(slug!);
+
+// The getStaticPaths() is required for static Astro sites.
+// If using SSR, you will not need this function.
+export async function getStaticPaths() {
+	const cves = await getAllSlugs();
+
+	return cves.map((p) => ({
+		params: { slug: p },
+		props: { data: getCVE(p) },
+	}));
+}
+---
+
+<Layout title={data.summary ?? ''}>
+	<main>	
+		<div class="container mx-auto bg-white rounded-lg p-8 shadow-lg">
+			<h1 class="text-1xl font-bold mb-4">Vulnerability Report  <SeverityBox severity={data.database_specific?.severity}></SeverityBox></h1>
+			<h1 class="text-3xl font-bold mb-4">{data.summary}</h1>
+			<div class="pb-4">
+				<div>
+					<p>
+						<label title={`Modified: ${data.modified}`}><strong>Published: </strong>{<DateTime date={data.published!} />}</label>
+					</p>
+				</div>
+				<hr />
+			</div>
+			<div class="grid grid-cols-12 gap-8">
+				<!-- Left Column -->
+				<div class="col-span-3">
+					<div>
+						<p><strong>ID:</strong>
+						{data.id}
+						</p>
+						<p>
+							<strong>Aliases:</strong>
+							{data.aliases}						
+						</p>
+					</div>
+					<div class="pt-4">
+						<h2 class="text-2xl font-semibold mb-2">Severity</h2>
+						<p>							
+							<Severity severity={data.severity}></Severity>
+						</p>
+						
+						<h2 class="text-2xl font-semibold mb-2 pt-4">Affected Package:</h2>
+						<p>
+							<PackageInfo packages={data.affected as any}></PackageInfo>
+						</p>						
+					</div>
+					<div class="mt-8">
+						<h2 class="text-2xl font-semibold mb-2">
+							Additional Information
+						</h2>
+						<p><strong>CWE IDs:</strong> {data.database_specific?.cwe_ids}</p>
+						<p><strong>Severity:</strong> {data.database_specific?.severity}</p>
+						<p><strong>GitHub Reviewed:</strong> {data.database_specific?.github_reviewed ? '✔' : ''}</p>
+						<p>
+							<strong>GitHub Reviewed At:</strong> <DateTime date={data.database_specific?.github_reviewed_at as string} />
+						</p>
+						<p>
+							<strong>NVD Published At:</strong>  <DateTime date={data.database_specific?.nvd_published_at as string}/>
+						</p>
+					</div>
+				</div>
+
+				<!-- Right Column -->
+				<div class="col-span-9">
+					<div class="grid gap-4">
+						<div>
+							<h2 class="text-2xl font-semibold mb-2">
+								Technical Details
+							</h2>
+							<p>{data.details}</p>
+						</div>
+						<hr />
+						<div class="gap-8">
+							<p><strong>References:</strong></p>
+							<ul>
+								{
+									data.references.map((r) => {
+										return (
+											<li>
+												<a href={r.url}>{r.url}</a>
+											</li>
+										);
+									})
+								}
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Additional Information -->
+		</div>
+	</main>
+</Layout>
