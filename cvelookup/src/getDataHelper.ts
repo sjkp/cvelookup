@@ -1,5 +1,5 @@
 import fs from 'node:fs'; // 👈 "node:" prefix is an Astro requirement for Node libs
-import {join} from 'node:path'
+import {join, sep} from 'node:path'
 import type { OpenSourceVulnerability } from './osv-schema';
 
 const getCVE = (slug: string) => {
@@ -16,7 +16,7 @@ export const getAllCVES = () => {
 
 export const getAllSlugs = () => {
     const makeSlug = (path: string) => {
-        var parts = path.split('\\');
+        var parts = path.split(sep);
         return parts.slice(4,7).join('/');
     }
 
