@@ -1,3 +1,4 @@
 [submodule "advisory-database"]
 	path = advisory-database
 	url = https://github.com/github/advisory-database.git
+	shallow = true
