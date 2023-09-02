@@ -15,7 +15,7 @@ const data = getCVE(slug!);
 export async function getStaticPaths() {
 	const cves = await getAllSlugs();
 
-	return cves.map((p) => ({
+	return cves.filter(s => s && s.length > 0).map((p) => ({
 		params: { slug: p },
 		props: { data: getCVE(p) },
 	}));
