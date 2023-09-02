@@ -1,37 +1,31 @@
 import { defineConfig } from 'astro/config';
-import cloudflare from "@astrojs/cloudflare";
-
+import { fileURLToPath } from 'node:url';
+import sitemap from "@astrojs/sitemap";
 import tailwind from "@astrojs/tailwind";
 
 // https://astro.build/config
 export default defineConfig({
     outDir: '../dist',    
+    site: 'https://cvelookup.netlify.com',
     vite: {
         optimizeDeps: {
             exclude: ['advisory-database'],            
         }
     },
-    integrations: [tailwind()],
+    integrations: [tailwind(), sitemap(), myIntegration()],
 });
 
-
-function fixExternal() {
-    return {
-      name: 'fix-external',
-      setup(build) {        
-        const {external} = build.initialOptions;
-        build.onResolve(
-          { filter: /^[\w@][^:]/ },
-          async ({ path: id, importer, kind, resolveDir }) => {
-            console.log(external);
-            if (external && external.includes(id)) {
-              return {
-                path: id,
-                external: true,
-              };
-            }
-          }
-        );
-      },
-    };
+export function myIntegration() {
+  return {
+    name: 'myIntegration',
+    hooks: {
+      'astro:build:done': async ({ dir }) => {
+        
+          // Use fileURLToPath to get a valid, cross-platform absolute path string
+          console.log(dir)
+          const outFile = fileURLToPath(new URL('./my-integration.json', dir));
+        console.log(outFile);
+      }
+    }
   }
+}

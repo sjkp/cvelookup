@@ -8,17 +8,23 @@ import getCVE, { getAllSlugs } from "../getDataHelper";
 import Layout from "../layouts/Layout.astro";
 
 const { slug } = Astro.params;
-const data = getCVE(slug!);
+const {data} = Astro.props; //getCVE(slug!);
 
 // The getStaticPaths() is required for static Astro sites.
 // If using SSR, you will not need this function.
 export async function getStaticPaths() {
 	const cves = await getAllSlugs();
 
-	return cves.filter(s => s && s.length > 0).map((p) => ({
-		params: { slug: p },
-		props: { data: getCVE(p) },
-	}));
+	return cves.map(p => ({slug: p,...getCVE(p)})).map((p) => ([
+		// {
+		// 	params: { slug: p.slug },		
+		// 	props: { data: p },
+		// },
+		{
+			params: { slug: p.slug.split('/').at(-1) },		
+			props: { data: p },
+		}
+	])).flat();
 }
 ---
 
